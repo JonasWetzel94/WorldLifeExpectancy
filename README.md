@@ -3,7 +3,7 @@
 # Introduction
 📊 **Explore global life expectancy trends!** This project focuses on cleaning and analyzing global life expectancy data, providing insights into patterns across different countries and years. Key topics include life expectancy improvements, comparisons with GDP and BMI, and how mortality rates are affecting life expectancy in different regions.
 
-🔍 Curious about the SQL queries used in this analysis? You can explore them here: [project_sql folder](/project_sql/)
+🔍 Curious about the SQL queries used in this analysis? You can explore them here: [project_sql folder](project_sql)
 
 # Background
 The goal of this project is to uncover patterns in global life expectancy, taking into account factors like GDP, BMI, and mortality rates. By cleaning the data and performing exploratory analysis, it provides a clear view of how different countries have evolved in terms of life expectancy over time.
@@ -26,7 +26,7 @@ Each SQL query in this project was designed to clean, explore, and analyze key a
 ### 1. Data Cleaning
 The first step was to clean the life expectancy data by removing duplicates, filling in missing values, and addressing any inconsistencies in the dataset.
 
-\`\`\`sql
+```sql
 -- Find and remove duplicates
 SELECT Country, Year, CONCAT(Country, Year), COUNT(CONCAT(Country, Year))
 FROM world_life_expectancy
@@ -45,14 +45,14 @@ WHERE Row_ID IN (
     ) AS Row_table
     WHERE Row_Num > 1
 );
-\`\`\`
+```
 
 This query ensures that only unique records for each country and year are retained, preventing duplication of data.
 
 ### 2. Filling Missing Data
 Next, missing values for the "Status" (Developed/Developing) and "Life expectancy" were filled based on patterns in the data.
 
-\`\`\`sql
+```sql
 -- Fill missing life expectancy values by calculating the average of previous and next years
 UPDATE world_life_expectancy t1
 JOIN world_life_expectancy t2
@@ -63,7 +63,7 @@ JOIN world_life_expectancy t3
     AND t1.Year = t3.Year + 1
 SET t1.\`Life expectancy\` = ROUND((t2.\`Life expectancy\` + t3.\`Life expectancy\`)/2, 1)
 WHERE t1.\`Life expectancy\` = '';
-\`\`\`
+```
 
 This method ensures that missing life expectancy data is populated in a logical way by averaging the values from surrounding years.
 
@@ -72,7 +72,7 @@ To gain insights into the life expectancy trends across countries, several analy
 
 - **Life expectancy improvement over 15 years:**
 
-\`\`\`sql
+```sql
 SELECT Country, MIN(\`Life expectancy\`), MAX(\`Life expectancy\`),
     ROUND(MAX(\`Life expectancy\`) - MIN(\`Life expectancy\`),1) AS Life_Increase_15_Years
 FROM world_life_expectancy
@@ -80,26 +80,26 @@ GROUP BY Country
 HAVING MIN(\`Life expectancy\`) <> 0
 AND MAX(\`Life expectancy\`) <> 0
 ORDER BY Life_Increase_15_Years DESC;
-\`\`\`
+```
 
 This query reveals the countries with the largest increases in life expectancy over the 15-year period, showing which regions have made the most progress.
 
 - **Global trend over time:**
 
-\`\`\`sql
+```sql
 SELECT Year, ROUND(AVG(\`Life expectancy\`), 2)
 FROM world_life_expectancy
 WHERE \`Life expectancy\` <> 0
 GROUP BY Year
 ORDER BY Year;
-\`\`\`
+```
 
 This analysis displays the average global life expectancy for each year, allowing us to track overall improvements or declines in life expectancy over time.
 
 ### 4. Relationship Between Life Expectancy and GDP
 One of the key questions addressed was how GDP influences life expectancy.
 
-\`\`\`sql
+```sql
 SELECT Country, 
     ROUND(AVG(\`Life expectancy\`), 1) AS Life_Exp, 
     ROUND(AVG(GDP), 1) AS GDP
@@ -107,18 +107,18 @@ FROM world_life_expectancy
 GROUP BY Country
 HAVING Life_Exp AND GDP > 0
 ORDER BY GDP DESC;
-\`\`\`
+```
 
 This query ranks countries based on their GDP and provides insight into how wealthier nations tend to have higher life expectancy.
 
 ### 5. Adult Mortality and Life Expectancy
 Another critical factor was adult mortality and its cumulative impact on life expectancy.
 
-\`\`\`sql
+```sql
 SELECT Country, Year, \`Life expectancy\`, \`Adult Mortality\`,
     SUM(\`Adult Mortality\`) OVER(PARTITION BY Country ORDER BY Year) AS Rolling_Total
 FROM world_life_expectancy;
-\`\`\`
+```
 
 This query calculates the rolling total of adult mortality for each country over the years, allowing for an analysis of how mortality rates affect overall life expectancy trends.
 
@@ -127,25 +127,25 @@ To further enrich the analysis, here are two additional queries that could provi
 
 1. **Top Countries with Highest Life Expectancy Improvement:**
 
-\`\`\`sql
+```sql
 SELECT Country, 
     MAX(\`Life expectancy\`) - MIN(\`Life expectancy\`) AS Life_Expectancy_Growth
 FROM world_life_expectancy
 GROUP BY Country
 ORDER BY Life_Expectancy_Growth DESC
 LIMIT 10;
-\`\`\`
+```
 
 This query shows the top 10 countries with the greatest improvement in life expectancy over time.
 
 2. **Life Expectancy Based on Economic Status (Developed vs Developing):**
 
-\`\`\`sql
+```sql
 SELECT Status, 
     ROUND(AVG(\`Life expectancy\`), 2) AS Avg_Life_Expectancy
 FROM world_life_expectancy
 GROUP BY Status;
-\`\`\`
+```
 
 This query compares the average life expectancy between developed and developing countries, providing insights into the disparities between these economic groups.
 
